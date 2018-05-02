@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
+import java.util.ArrayList;
 
 public class PlayerThread extends Thread {
 
@@ -11,7 +12,8 @@ public class PlayerThread extends Thread {
 	private GUI gui;
 	private Server server;
 	private String playerName = "";
-
+	private ArrayList<String> cards = new ArrayList<>();
+	
 	/**
 	 * Constructor for a PlayerThread
 	 * @param socket - the player's socket
@@ -51,7 +53,7 @@ public class PlayerThread extends Thread {
 				if (data.contains("play")) {
 					String[] parts = data.split(" ");
 
-					server.playCard(socket, parts[1]);
+					server.playCard(socket, new PlayableCard(parts[1], socket));
 				}
 				
 				// Log it to the server
@@ -78,5 +80,23 @@ public class PlayerThread extends Thread {
 	 */
 	public Socket getSocket() {
 		return socket;
+	}
+	
+	/**
+	 * Adds a card to the player's hand
+	 * 
+	 * @param card - the card to give
+	 */
+	public void giveCard(String card) {
+		cards.add(card);
+	}
+
+	/**
+	 * Returns back an ArrayList containing cards the player holds
+	 * 
+	 * @return the player's hand
+	 */
+	public ArrayList<String> getCards() {
+		return this.cards;
 	}
 }
