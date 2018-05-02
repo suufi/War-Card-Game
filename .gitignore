@@ -80,3 +80,5 @@ hs_err_pid*
 src/test/
 
 src/com/suufi/war/client/Client\.java
+
+src/com/suufi/war/server/GUI\.java

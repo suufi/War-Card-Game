@@ -128,19 +128,4 @@ public class ClientConnection extends Thread {
 	public void updateOpponentHandSize(int amount) {
 		clientGUI.updateHandSize(amount, true);
 	}
-	
-	/*
-	 * public void submit(ArrayList<ClickableCard> submittedCards) {
-	 *
-	    String totalList = "";
-	    for(int i = 0; i<submittedCards.size(); i++)
-	    {
-	      totalList = totalList + submittedCards.get(i).getCardValue() + " " + submittedCards.get(i).getSuit()+ " ";
-	    }
-	    client.updateHandSize();
-	    client.log(totalList);
-	    out.println("play " + totalList);
-	    client.clearSubmitted();
-	}
-	*/
 }
