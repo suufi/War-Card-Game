@@ -78,3 +78,5 @@ hs_err_pid*
 
 # the test package
 src/test/
+
+src/com/suufi/war/client/Client\.java
