@@ -1,16 +1,16 @@
 package com.suufi.war.server;
 
-import com.suufi.war.client.Client;
+import java.net.Socket;
 
 public class PlayableCard {
 	
-	Client player;
+	Socket playerSocket;
 	String card;
 	
 	int value;
 	
-	public PlayableCard(String card, Client player) {
-		this.player = player;
+	public PlayableCard(String card, Socket playerSocket) {
+		this.playerSocket = playerSocket;
 		this.card = card;
 		this.value = Integer.parseInt(card.split("(?<=\\d)(?=\\D)")[0]);
 	}
@@ -27,5 +27,13 @@ public class PlayableCard {
 		}
 		
 		return false;
+	}
+	
+	public String toString() {
+		return this.card;
+	}
+	
+	public Socket getPlayerSocket() {
+		return this.playerSocket;
 	}
 }
