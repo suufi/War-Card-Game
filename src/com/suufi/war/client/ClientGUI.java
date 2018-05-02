@@ -30,6 +30,8 @@ public class ClientGUI {
 	private JLabel lblHandSize;
 	private JLabel lblOppHandSize;
 	private JLabel lblWar;
+	private JLabel lblCardPlayed;
+	private JLabel lblOppCardPlayed;
 	private JTextArea serverMessages;
 	
 	private ClientConnection connection;
@@ -135,9 +137,15 @@ public class ClientGUI {
 		playerPanel.setBounds(356, 33, 331, 147);
 		midPanel.add(playerPanel);
 		
+		lblCardPlayed = new JLabel("");
+		playerPanel.add(lblCardPlayed);
+		
 		opponentPanel = new JPanel();
 		opponentPanel.setBounds(0, 33, 357, 147);
 		midPanel.add(opponentPanel);
+		
+		lblOppCardPlayed = new JLabel("");
+		opponentPanel.add(lblOppCardPlayed);
 		
 		bottomPanel = new JPanel();
 		bottomPanel.setBounds(0, 320, 725, 168);
@@ -145,6 +153,13 @@ public class ClientGUI {
 		
 		playerHand = new JButton("");
 		playerHand.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/back.png")));
+		playerHand.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				connection.playCard();
+				playerHand.setEnabled(false);
+			}
+		});
+		playerHand.setEnabled(false);
 		bottomPanel.add(playerHand);
 		
 		frame.setVisible(true);
@@ -173,5 +188,22 @@ public class ClientGUI {
 	
 	public void enableTurn() {
 		playerHand.setEnabled(true);
+	}
+	
+	public void putCard(String card, Side side) {
+		if (side == Side.RIGHT) {
+			lblCardPlayed.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/" + card + ".png")));
+		} else {
+			lblOppCardPlayed.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/" + card + ".png")));
+		}
+	}
+
+	public void clearCards() {
+		lblCardPlayed.setIcon(null);
+		lblOppCardPlayed.setIcon(null);
+	}
+	
+	public ClientConnection getClientConnection() {
+		return this.connection;
 	}
 }
