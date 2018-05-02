@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
 
@@ -124,6 +125,9 @@ public class Server {
 				bw.write("serverStop");
 				bw.newLine();
 				bw.flush();
+				bw.close();
+				
+				playerThreads.remove(player);
 			}
 		} else {
 			gui.log("Can't stop what's not running!");
@@ -158,6 +162,15 @@ public class Server {
 					gui.log("dealing " + card + " to " + player.getPlayerName());
 					bw.write("deal " + card);
 					bw.newLine();
+					
+					player.giveCard(card);
+					
+					try {
+						TimeUnit.MILLISECONDS.sleep(58);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				
 				// Send "dealt" to the client to signal a GUI update
@@ -187,12 +200,86 @@ public class Server {
 	}
 	
 	public void playCard(Socket playerSocket, PlayableCard card) throws IOException {
+		/*
+		 * addCard to cards in play
+		 * 
+		 * check cardsinplay size if 2
+		 * 		check if it's better than the first card played
+		 * 			if it is, create a bufferedwriter to player
+		 */
+		
+		System.out.println("adding card: " + card.toString());
 		cardsInPlay.add(card);
 		
 		if (cardsInPlay.size() == 2) {
+			
 			if (card.isStronger(cardsInPlay.get(0))) {
-				// TODO: add the cards to the player's deck
+				
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(cardsInPlay.get(0).getPlayerSocket().getOutputStream()));
+				bw.write("oppPlayed " + card.toString());
+				bw.newLine();
+				bw.flush();
+				
+				try {
+					TimeUnit.SECONDS.sleep(3);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				BufferedWriter bw2 = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
+				
+				for (PlayableCard cardWon : cardsInPlay) {
+					bw2.write("won " + cardWon.toString());
+					bw2.newLine();
+				}
+				
+				cardsInPlay.clear();
+				
+				bw2.flush();				
+				
+			} else if (card.equals(cardsInPlay.get(0))) {
+				
+				// For each playerSocket connected
+				for (PlayerThread player : playerThreads) {
+					
+					// Initialize a BufferedWriter to that player
+					BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
+					
+					bw.write("war");
+					bw.newLine();
+					bw.flush();
+					
+				}
+				
+			} else {
+				
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
+				bw.write("oppPlayed " + cardsInPlay.get(0).toString());
+				bw.newLine();
+				bw.flush();
+				
+				try {
+					TimeUnit.SECONDS.sleep(3);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				BufferedWriter bw2 = new BufferedWriter(new OutputStreamWriter(cardsInPlay.get(0).getPlayerSocket().getOutputStream()));
+				
+				for (PlayableCard cardWon : cardsInPlay) {
+					bw2.write("won " + cardWon.toString());
+					bw2.newLine();
+					
+					cardsInPlay.remove(cardWon);
+				}
+				
+				bw2.flush();
+				
 			}
+		} else {
+			turnNext();
 		}
 	}
 	
@@ -211,4 +298,5 @@ public class Server {
 		bw.flush();		
 		
 	}
+	
 }
