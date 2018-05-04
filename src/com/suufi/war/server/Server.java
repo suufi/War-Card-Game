@@ -213,6 +213,7 @@ public class Server {
 		
 		if (cardsInPlay.size() == 2) {
 			
+				TimeUnit.SECONDS.sleep(2);
 			if (card.isStronger(cardsInPlay.get(0))) {
 				
 				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(cardsInPlay.get(0).getPlayerSocket().getOutputStream()));
@@ -221,7 +222,6 @@ public class Server {
 				bw.flush();
 				
 				try {
-					TimeUnit.SECONDS.sleep(3);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
