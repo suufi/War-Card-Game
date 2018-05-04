@@ -277,15 +277,25 @@ public class Server {
 				
 				bw2.flush();
 				
+			if (playerThreads.get(0).getCards().size() == 0) {
+				// TODO tell player that they lost and tell opponent they won
 			}
+
+			// TODO Do above in reverse
+			
+			if (playerThreads.get(0).getCards().size() > 0 && playerThreads.get(1).getCards().size() > 0) {				
+				newRound();
+			}
+			
+			
 		} else {
 			turnNext();
 		}
 	}
 	
 	public void turnNext() throws IOException {
-		// If the currentPlayerIndex is less than the playerCount, increment the currentPlayerIndex; otherwise, reset it back to 0 so we don't go over
-		if (currentPlayerIndex < playerCount) {
+		// If the currentPlayerIndex is less than the playerCount - 1, increment the currentPlayerIndex; otherwise, reset it back to 0 so we don't go over
+		if (currentPlayerIndex < playerCount - 1) {
 			currentPlayerIndex++;
 		} else {
 			currentPlayerIndex = 0;
@@ -297,6 +307,23 @@ public class Server {
 		bw.newLine();
 		bw.flush();		
 		
+	}
+	
+	public void newRound() throws IOException {
+		
+		// For each playerSocket connected
+		for (PlayerThread player : playerThreads) {
+			
+			// Initialize a BufferedWriter to that player
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
+		
+			bw.write("newRound");
+			bw.newLine();
+			bw.flush();
+			
+		}
+		
+		turnNext();
 	}
 	
 }
