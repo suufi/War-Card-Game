@@ -211,27 +211,48 @@ public class Server {
 		System.out.println("adding card: " + card.toString());
 		cardsInPlay.add(card);
 		
+		BufferedWriter bwOpponent; 
+		
+		if (playerSocket.equals(playerThreads.get(0).getSocket())) {
+			bwOpponent = new BufferedWriter(new OutputStreamWriter(playerThreads.get(1).getSocket().getOutputStream()));
+		} else {
+			bwOpponent = new BufferedWriter(new OutputStreamWriter(playerThreads.get(0).getSocket().getOutputStream()));
+		}
+		
+		bwOpponent.write("oppPlayedCard");
+		bwOpponent.newLine();
+		bwOpponent.flush();
+		
 		if (cardsInPlay.size() == 2) {
+
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(cardsInPlay.get(0).getPlayerSocket().getOutputStream()));
+			bw.write("oppPlayed " + card.toString());
+			bw.newLine();
+			bw.flush();
 			
+			bw = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
+			bw.write("oppPlayed " + cardsInPlay.get(0));
+			bw.newLine();
+			bw.flush();
+			
+			try {
 				TimeUnit.SECONDS.sleep(2);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 			if (card.isStronger(cardsInPlay.get(0))) {
 				
-				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(cardsInPlay.get(0).getPlayerSocket().getOutputStream()));
-				bw.write("oppPlayed " + card.toString());
-				bw.newLine();
-				bw.flush();
-				
-				try {
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				
 				BufferedWriter bw2 = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 				
 				for (PlayableCard cardWon : cardsInPlay) {
 					bw2.write("won " + cardWon.toString());
 					bw2.newLine();
+					bwOpponent.write("lost" + cardWon.toString());
+					bwOpponent.newLine();
+					bwOpponent.flush();
 				}
 				
 				cardsInPlay.clear();
@@ -244,20 +265,17 @@ public class Server {
 				for (PlayerThread player : playerThreads) {
 					
 					// Initialize a BufferedWriter to that player
-					BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
+					BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
 					
-					bw.write("war");
-					bw.newLine();
-					bw.flush();
+					playerBW.write("war");
+					playerBW.newLine();
+					playerBW.flush();
 					
 				}
 				
 			} else {
 				
-				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
-				bw.write("oppPlayed " + cardsInPlay.get(0).toString());
-				bw.newLine();
-				bw.flush();
+				BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 				
 				try {
 					TimeUnit.SECONDS.sleep(3);
@@ -271,12 +289,16 @@ public class Server {
 				for (PlayableCard cardWon : cardsInPlay) {
 					bw2.write("won " + cardWon.toString());
 					bw2.newLine();
-					
-					cardsInPlay.remove(cardWon);
+					playerBW.write("lost " + cardWon.toString());
+					playerBW.newLine();
+					playerBW.flush();
 				}
 				
-				bw2.flush();
+				cardsInPlay.clear();
 				
+				bw2.flush();
+			}
+			
 			if (playerThreads.get(0).getCards().size() == 0) {
 				// TODO tell player that they lost and tell opponent they won
 			}
