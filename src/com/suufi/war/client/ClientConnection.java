@@ -57,6 +57,11 @@ public class ClientConnection extends Thread {
 					clientGUI.putCard(data[1], Side.LEFT);
 					oppHandSize--;
 	
+				} else if (data[0].equals("newRound")) {
+					
+					clientGUI.clearCards();
+					hand.shuffle();
+					
 				} else if (data[0].equals("won")) {
 					
 					data = data[1].split("(?<=\\d)(?=\\D)");
