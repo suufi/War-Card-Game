@@ -55,7 +55,12 @@ public class ClientConnection extends Thread {
 				} else if (data[0].equals("oppPlayed")) {
 					
 					clientGUI.putCard(data[1], Side.LEFT);
+					// oppHandSize--;
+					
+				} else if (data[0].equals("oppPlayedCard")) {
+					
 					oppHandSize--;
+					updateHandSizes();
 	
 				} else if (data[0].equals("newRound")) {
 					
@@ -70,12 +75,12 @@ public class ClientConnection extends Thread {
 					
 					hand.addCard(data[0] + data[1]);
 					
-					oppHandSize--;
+					// oppHandSize--;
 					updateHandSizes();
 					
 				} else if (data[0].equals("lost")) {
 					
-					oppHandSize += 2;
+					oppHandSize++;
 					updateHandSizes();
 					
 				} else if (data[0].equals("serverStop")) {
@@ -123,7 +128,7 @@ public class ClientConnection extends Thread {
 	
 	public void updateHandSizes() {
 		clientGUI.updateHandSize(hand.size(), false);
-		clientGUI.updateHandSize(52 - hand.size(), true);
+		clientGUI.updateHandSize(oppHandSize, true);
 	}
 	
 	public void updateHandSize() {
