@@ -39,6 +39,8 @@ public class ClientGUI {
 	private JPanel opponentPanel;
 	private TimeWatch watch;
 	
+	private boolean war;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -157,8 +159,10 @@ public class ClientGUI {
 		playerHand.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/back.png")));
 		playerHand.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				connection.playCard();
-				playerHand.setEnabled(false);
+				if (!war) {					
+					connection.playCard();
+					playerHand.setEnabled(false);
+				}
 			}
 		});
 		playerHand.setEnabled(false);
@@ -199,6 +203,17 @@ public class ClientGUI {
 			lblOppCardPlayed.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/" + card + ".png")));
 		}
 	}
+	
+	public void putWarCard(String card, Side side) {
+		JLabel cardLabel = new JLabel("");
+		cardLabel.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/" + card + ".png")));
+
+		if (side == Side.RIGHT) {			
+			playerPanel.add(cardLabel);
+		} else {
+			opponentPanel.add(cardLabel);
+		}
+	}
 
 	public void clearCards() {
 		lblCardPlayed.setIcon(null);
@@ -217,5 +232,10 @@ public class ClientGUI {
 			}
 		});
 		thread.start();
+	}
+	
+	public void startWar() {
+		war = true;
+		lblWar.setText("War has been declared! Draw 3 cards face down and turn the next one over.");
 	}
 }

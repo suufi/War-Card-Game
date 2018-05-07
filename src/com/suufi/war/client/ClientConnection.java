@@ -126,6 +126,21 @@ public class ClientConnection extends Thread {
 		
 	}
 	
+	public void playWarCards() {
+		if (hand.size() > 3) {			
+			ArrayList<String> cards = hand.drawTop(3);
+			System.out.println(cards.toString());
+			
+			ArrayList<String> warCard = hand.drawTop(1);
+			
+			for (String card : cards) {
+				clientGUI.putWarCard("back", Side.RIGHT);
+			}
+			
+			clientGUI.putWarCard(warCard.get(0), Side.RIGHT);
+		}
+	}
+	
 	public void clearPlayCards() {
 		clientGUI.clearCards();
 	}
