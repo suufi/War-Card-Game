@@ -37,6 +37,7 @@ public class ClientGUI {
 	
 	private ClientConnection connection;
 	private JPanel opponentPanel;
+	private TimeWatch watch;
 	
 	/**
 	 * Launch the application.
@@ -206,5 +207,15 @@ public class ClientGUI {
 	
 	public ClientConnection getClientConnection() {
 		return this.connection;
+	}
+	
+	public void startTimer() {
+		watch = TimeWatch.start();
+		Thread thread = new Thread(() -> {
+			while (true) {
+				lblTimer.setText("Time Elapsed: " + watch.toString());
+			}
+		});
+		thread.start();
 	}
 }

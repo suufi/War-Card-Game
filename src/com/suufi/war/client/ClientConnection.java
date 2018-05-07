@@ -48,6 +48,10 @@ public class ClientConnection extends Thread {
 					oppHandSize = 26;
 					updateHandSizes();
 					
+				} else if (data[0].equals("start")) {
+					
+					clientGUI.startTimer();
+					
 				} else if (data[0].equals("turn")) {
 					
 					clientGUI.enableTurn();

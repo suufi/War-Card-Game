@@ -176,6 +176,10 @@ public class Server {
 				bw.write("dealt");
 				bw.newLine();
 				bw.flush();
+				
+				bw.write("start");
+				bw.newLine();
+				bw.flush();
 			}
 						
 			// Get a random number that is 0 or 1; this will be a reference to the index of the starting player
