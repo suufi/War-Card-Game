@@ -23,6 +23,7 @@ public class ClientGUI {
 	private JPanel topPanel;
 	private JPanel midPanel;
 	private JPanel bottomPanel;
+	private JPanel playerPanel;
 	private JButton btnShuffle;
 	private JButton btnForfeit;
 	private JButton playerHand;
@@ -129,11 +130,11 @@ public class ClientGUI {
 		masterBox.add(midPanel);
 		midPanel.setLayout(null);
 		
-		lblWar = new JLabel("War! Play 3 cards and draw your top card.");
+		lblWar = new JLabel("");
 		lblWar.setBounds(225, 5, 259, 16);
 		midPanel.add(lblWar);
 		
-		JPanel playerPanel = new JPanel();
+		playerPanel = new JPanel();
 		playerPanel.setBounds(356, 33, 331, 147);
 		midPanel.add(playerPanel);
 		

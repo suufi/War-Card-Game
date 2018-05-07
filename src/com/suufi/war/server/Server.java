@@ -125,7 +125,6 @@ public class Server {
 				bw.write("serverStop");
 				bw.newLine();
 				bw.flush();
-				bw.close();
 				
 				playerThreads.remove(player);
 			}
@@ -250,7 +249,7 @@ public class Server {
 				for (PlayableCard cardWon : cardsInPlay) {
 					bw2.write("won " + cardWon.toString());
 					bw2.newLine();
-					bwOpponent.write("lost" + cardWon.toString());
+					bwOpponent.write("lost " + cardWon.toString());
 					bwOpponent.newLine();
 					bwOpponent.flush();
 				}
