@@ -56,8 +56,12 @@ public class ClientConnection extends Thread {
 					
 					clientGUI.enableTurn();
 				
-				} else if (data[0].equals("oppPlayed")) {
+				} else if (data[0].equals("war")) {
+
+					clientGUI.startWar();
 					
+				} else if (data[0].equals("oppPlayed")) {
+						
 					clientGUI.putCard(data[1], Side.LEFT);
 					// oppHandSize--;
 					
@@ -68,7 +72,7 @@ public class ClientConnection extends Thread {
 	
 		        } else if (data[0].equals("newRound")) { 
 		            
-		            clientGUI.clearCards(); 
+		            clientGUI.resetView();
 		            hand.shuffle(); 
 		            
 				} else if (data[0].equals("won")) {
@@ -142,7 +146,7 @@ public class ClientConnection extends Thread {
 	}
 	
 	public void clearPlayCards() {
-		clientGUI.clearCards();
+		clientGUI.resetView();
 	}
 	
 	public void updateHandSizes() {

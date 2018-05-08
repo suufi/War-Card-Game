@@ -2,6 +2,7 @@ package com.suufi.war.client;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -10,6 +11,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -162,6 +164,9 @@ public class ClientGUI {
 				if (!war) {					
 					connection.playCard();
 					playerHand.setEnabled(false);
+				} else {
+					connection.playWarCards();
+					playerHand.setEnabled(false);
 				}
 			}
 		});
@@ -215,9 +220,20 @@ public class ClientGUI {
 		}
 	}
 
-	public void clearCards() {
+	public void resetView() {
 		lblCardPlayed.setIcon(null);
 		lblOppCardPlayed.setIcon(null);
+		lblWar.setText("");
+		war = false;
+		
+		for (Component element : playerPanel.getComponents()) {
+			if (element != lblCardPlayed) playerPanel.remove(element);;
+		}
+		
+		for (Component element : opponentPanel.getComponents()) {
+			if (element != lblOppCardPlayed) opponentPanel.remove(element);;
+		}
+		
 	}
 	
 	public ClientConnection getClientConnection() {
