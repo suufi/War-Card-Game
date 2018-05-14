@@ -161,4 +161,8 @@ public class ClientConnection extends Thread {
 	public void updateOpponentHandSize(int amount) {
 		clientGUI.updateHandSize(amount, true);
 	}
+	
+	public void shuffleHand() {
+		hand.shuffle();
+	}
 }

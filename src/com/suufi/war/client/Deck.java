@@ -30,7 +30,7 @@ public class Deck {
 			}
 		}
 	}
-	
+
 	/**
 	 * Shuffles the deck
 	 */
@@ -233,6 +233,10 @@ public class Deck {
 		} else {
 			return false;
 		}
+	}
+	
+	public static void main(String[] args) {
+		
 	}
 	
 }

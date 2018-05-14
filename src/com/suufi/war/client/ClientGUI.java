@@ -18,6 +18,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
+import javax.swing.BoxLayout;
+import java.awt.FlowLayout;
+import javax.swing.SwingConstants;
 
 public class ClientGUI {
 
@@ -26,6 +29,7 @@ public class ClientGUI {
 	private JPanel midPanel;
 	private JPanel bottomPanel;
 	private JPanel playerPanel;
+	private JPanel opponentPanel;
 	private JButton btnShuffle;
 	private JButton btnForfeit;
 	private JButton playerHand;
@@ -35,13 +39,16 @@ public class ClientGUI {
 	private JLabel lblWar;
 	private JLabel lblCardPlayed;
 	private JLabel lblOppCardPlayed;
+	private JLabel lblYou;
+	
 	private JTextArea serverMessages;
 	
 	private ClientConnection connection;
-	private JPanel opponentPanel;
+
 	private TimeWatch watch;
 	
 	private boolean war;
+	private int shufflesRemaining = 3;
 	
 	/**
 	 * Launch the application.
@@ -75,7 +82,7 @@ public class ClientGUI {
 		frame = new JFrame();
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(ClientGUI.class.getResource("/com/suufi/war/client/war-client-logo@4x.png")));
 		frame.setTitle("War Client");
-		frame.setBounds(100, 100, 688, 511);
+		frame.setBounds(100, 100, 697, 526);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel masterBox = new JPanel();
@@ -113,6 +120,22 @@ public class ClientGUI {
 		btnShuffle = new JButton("Shuffle: 3");
 		btnShuffle.setFont(new Font("SF Compact Text", Font.PLAIN, 13));
 		btnShuffle.setBounds(502, 73, 166, 29);
+		btnShuffle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (shufflesRemaining > 0) {					
+					connection.shuffleHand();
+					shufflesRemaining--;
+					btnShuffle.setText("Shuffle: " + shufflesRemaining);
+					
+					if (shufflesRemaining == 0) {
+						btnShuffle.setEnabled(false);
+						btnShuffle.setText("Shuffle: 0");
+					}
+				} else {
+					showDialog("Sorry! You ran out of shuffles.");
+				}
+			}
+		});
 		topPanel.add(btnShuffle);
 		
 		JScrollPane scrollPane = new JScrollPane();
@@ -135,6 +158,18 @@ public class ClientGUI {
 		masterBox.add(midPanel);
 		midPanel.setLayout(null);
 		
+		JLabel lblOpponent = new JLabel("Opponent");
+		lblOpponent.setBackground(Color.LIGHT_GRAY);
+		lblOpponent.setHorizontalAlignment(SwingConstants.CENTER);
+		lblOpponent.setBounds(27, 11, 298, 41);
+		midPanel.add(lblOpponent);
+		
+		lblYou = new JLabel("You");
+		lblYou.setHorizontalAlignment(SwingConstants.CENTER);
+		lblYou.setBackground(Color.LIGHT_GRAY);
+		lblYou.setBounds(367, 11, 298, 41);
+		midPanel.add(lblYou);
+		
 		lblWar = new JLabel("");
 		lblWar.setBounds(225, 5, 259, 16);
 		midPanel.add(lblWar);
@@ -149,6 +184,7 @@ public class ClientGUI {
 		opponentPanel = new JPanel();
 		opponentPanel.setBounds(0, 33, 357, 147);
 		midPanel.add(opponentPanel);
+		opponentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		lblOppCardPlayed = new JLabel("");
 		opponentPanel.add(lblOppCardPlayed);

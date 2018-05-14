@@ -24,6 +24,7 @@ public class Server {
 	int currentPlayerIndex;
 	
 	ArrayList<PlayableCard> cardsInPlay = new ArrayList<>();
+	ArrayList<PlayableCard> warCards = new ArrayList<>();
 	
 	/**
 	 * Constructor for the Server class
@@ -146,15 +147,19 @@ public class Server {
 			// Create a new deck and initialize it with cards
 			Deck deck = new Deck();
 			deck.initialize();
-
+			
 			// For each playerSocket connected
 			for (PlayerThread player : playerThreads) {
 				
 				// Initialize a BufferedWriter to that player
 				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
 				
+				System.out.println("DECK SIZE: " + deck.size());
+
 				// Divide the cards evenly among the players
 				ArrayList<String> cards = deck.drawCards(52 / playerCount);
+				
+				System.out.println("PLAYER COUNT: " + playerCount);
 				
 				// Deal each card in cards by writing to the BufferedWriter
 				for (String card : cards) {
@@ -226,6 +231,8 @@ public class Server {
 		bwOpponent.newLine();
 		bwOpponent.flush();
 		
+		boolean war = false;
+		
 		if (cardsInPlay.size() == 2) {
 
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(cardsInPlay.get(0).getPlayerSocket().getOutputStream()));
@@ -244,9 +251,10 @@ public class Server {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			
 			if (card.isStronger(cardsInPlay.get(0))) {
 				
+				war = false;
 				
 				BufferedWriter bw2 = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 				
@@ -262,21 +270,9 @@ public class Server {
 				
 				bw2.flush();				
 				
-			} else if (card.equals(cardsInPlay.get(0))) {
+			} else if (cardsInPlay.get(0).isStronger(card)) {
 				
-				// For each playerSocket connected
-				for (PlayerThread player : playerThreads) {
-					
-					// Initialize a BufferedWriter to that player
-					BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
-					
-					playerBW.write("war");
-					playerBW.newLine();
-					playerBW.flush();
-					
-				}
-				
-			} else {
+				war = false;
 				
 				BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 				
@@ -300,6 +296,24 @@ public class Server {
 				cardsInPlay.clear();
 				
 				bw2.flush();
+			} else {
+					war = true;
+					
+					// For each playerSocket connected
+					for (PlayerThread player : playerThreads) {
+						
+						// Initialize a BufferedWriter to that player
+						BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
+						
+						playerBW.write("war");
+						playerBW.newLine();
+						playerBW.flush();
+						
+						
+					}
+					
+					warCards.addAll(cardsInPlay);
+					cardsInPlay.clear();
 			}
 			
 			if (playerThreads.get(0).getCards().size() == 0) {
@@ -308,7 +322,7 @@ public class Server {
 
 			// TODO Do above in reverse
 			
-			if (playerThreads.get(0).getCards().size() > 0 && playerThreads.get(1).getCards().size() > 0) {				
+			if (playerThreads.get(0).getCards().size() > 0 && playerThreads.get(1).getCards().size() > 0 && war == false) {				
 				newRound();
 			}
 			
@@ -316,6 +330,19 @@ public class Server {
 		} else {
 			turnNext();
 		}
+	}
+	
+	public void playWarCard(Socket playerSocket, PlayableCard card, boolean popCard) throws IOException {
+		if (popCard == false) {
+			warCards.add(card);
+		} else {
+			cardsInPlay.add(card);
+			
+			if (cardsInPlay.size() == 2) {
+				
+			}
+		}
+		
 	}
 	
 	public void turnNext() throws IOException {

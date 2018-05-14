@@ -22,6 +22,8 @@ public class PlayableCard {
 	}
 	
 	public boolean isStronger(PlayableCard card) {
+		if (value == 1 && card.value != 1) return true;
+		
 		if (value > card.value) {
 			return true;
 		}
