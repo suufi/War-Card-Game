@@ -14,6 +14,9 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -21,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
 import java.awt.FlowLayout;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 public class ClientGUI {
 
@@ -56,8 +60,19 @@ public class ClientGUI {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				System.out.println(System.getProperty("os.name"));
+				if (System.getProperty("os.name").startsWith("Mac OS X")) {
+					System.setProperty("apple.laf.useScreenMenuBar", "true");
+					System.setProperty("apple.awt.graphics.UseQuartz", "true");
+					System.setProperty("com.apple.mrj.application.apple.menu.about.name", "War Client");
+				}
+
 				try {
+					
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					
 					new ClientConnection(JOptionPane.showInputDialog("Please enter a server IP address"));
+				
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -82,26 +97,46 @@ public class ClientGUI {
 		frame = new JFrame();
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(ClientGUI.class.getResource("/com/suufi/war/client/war-client-logo@4x.png")));
 		frame.setTitle("War Client");
-		frame.setBounds(100, 100, 697, 526);
+		frame.setBounds(100, 100, 837, 579);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel masterBox = new JPanel();
 		frame.getContentPane().add(masterBox, BorderLayout.CENTER);
 		masterBox.setLayout(null);
 		
+		JMenuBar menubar = new JMenuBar();
+		menubar.setBounds(0, 0, 835, 28);
+		masterBox.add(menubar);
+		JMenu menu = new JMenu("Menu");
+		JMenuItem size = new JMenuItem("Help");
+		size.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				showDialog("War (IRL) - Mohamed Suufi\n\nThe objective of the game is to win all cards.\n" + 
+						"\n" + 
+						"The deck is divided evenly among the players, giving each a down stack. In unison, each player reveals the \n"
+						+ "top card of their deck—this is a \"battle\"—and the player with the higher card takes both of the cards played\n"
+						+ "and moves them to their stack. Aces are high, and suits are ignored.\n" 
+						+ "If the two cards played are of equal value, then there is a \"war\". In traditional verions of the game, you play 4\n"
+						+ "additional cards where the fourth is the deciding card on who gets the card. In this version, the two cards that tied\n"
+						+ "are discarded from the game.");
+			}
+		});
+		menu.add(size);
+		menubar.add(menu);
+		
 		topPanel = new JPanel();
-		topPanel.setLocation(0, 0);
+		topPanel.setLocation(0, 27);
 		topPanel.setBackground(Color.LIGHT_GRAY);
 		masterBox.add(topPanel);
 		topPanel.setLayout(null);
-		topPanel.setSize(687, 141);
+		topPanel.setSize(835, 141);
 		
 		lblTimer = new JLabel("Time Elapsed: 0:00");
-		lblTimer.setBounds(502, 12, 166, 15);
+		lblTimer.setBounds(509, 12, 166, 15);
 		topPanel.add(lblTimer);
 		
 		lblHandSize = new JLabel("Your Hand Size: 0");
-		lblHandSize.setBounds(502, 39, 166, 15);
+		lblHandSize.setBounds(509, 39, 166, 15);
 		topPanel.add(lblHandSize);
 		
 		btnForfeit = new JButton("Forfeit");
@@ -111,22 +146,23 @@ public class ClientGUI {
 				connection.forfeit();
 			}
 		});
-		btnForfeit.setBounds(502, 101, 166, 29);
+		btnForfeit.setBounds(509, 101, 166, 29);
 		topPanel.add(btnForfeit);
 		
 		lblOppHandSize = new JLabel("Opponent's Hand Size: 0");
-		lblOppHandSize.setBounds(502, 54, 166, 15);
+		lblOppHandSize.setBounds(509, 54, 166, 15);
 		topPanel.add(lblOppHandSize);
 		
 		btnShuffle = new JButton("Shuffle: 3");
 		btnShuffle.setFont(new Font("SF Compact Text", Font.PLAIN, 13));
-		btnShuffle.setBounds(502, 73, 166, 29);
+		btnShuffle.setBounds(509, 73, 166, 29);
 		btnShuffle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (shufflesRemaining > 0) {					
 					connection.shuffleHand();
 					shufflesRemaining--;
 					btnShuffle.setText("Shuffle: " + shufflesRemaining);
+					log("Shuffled");
 					
 					if (shufflesRemaining == 0) {
 						btnShuffle.setEnabled(false);
@@ -141,10 +177,11 @@ public class ClientGUI {
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setViewportBorder(null);
-		scrollPane.setBounds(10, 10, 480, 120);
+		scrollPane.setBounds(17, 10, 480, 120);
 		topPanel.add(scrollPane);
 		
 		serverMessages = new JTextArea();
+		scrollPane.setViewportView(serverMessages);
 		serverMessages.setText("Welcome to War!\n");
 		serverMessages.setRows(5);
 		serverMessages.setLineWrap(true);
@@ -152,46 +189,46 @@ public class ClientGUI {
 		serverMessages.setEditable(false);
 		serverMessages.setColumns(30);
 		serverMessages.setBackground(Color.DARK_GRAY);
-		scrollPane.setViewportView(serverMessages);
+		
+		lblWar = new JLabel("");
+		lblWar.setHorizontalAlignment(SwingConstants.LEFT);
+		lblWar.setBounds(695, 12, 134, 118);
+		topPanel.add(lblWar);
 		
 		midPanel = new JPanel();
-		midPanel.setBounds(0, 141, 725, 180);
+		midPanel.setBounds(0, 170, 835, 201);
 		masterBox.add(midPanel);
 		midPanel.setLayout(null);
 		
-		JLabel lblOpponent = new JLabel("Opponent");
-		lblOpponent.setBackground(Color.LIGHT_GRAY);
-		lblOpponent.setHorizontalAlignment(SwingConstants.CENTER);
-		lblOpponent.setBounds(27, 11, 298, 41);
-		midPanel.add(lblOpponent);
-		
-		lblYou = new JLabel("You");
-		lblYou.setHorizontalAlignment(SwingConstants.CENTER);
-		lblYou.setBackground(Color.LIGHT_GRAY);
-		lblYou.setBounds(367, 11, 298, 41);
-		midPanel.add(lblYou);
-		
-		lblWar = new JLabel("");
-		lblWar.setBounds(225, 5, 259, 16);
-		midPanel.add(lblWar);
-		
 		playerPanel = new JPanel();
-		playerPanel.setBounds(356, 33, 331, 147);
+		playerPanel.setBounds(430, 33, 406, 147);
 		midPanel.add(playerPanel);
 		
 		lblCardPlayed = new JLabel("");
 		playerPanel.add(lblCardPlayed);
 		
 		opponentPanel = new JPanel();
-		opponentPanel.setBounds(0, 33, 357, 147);
+		opponentPanel.setBounds(0, 33, 431, 147);
 		midPanel.add(opponentPanel);
 		opponentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		lblOppCardPlayed = new JLabel("");
 		opponentPanel.add(lblOppCardPlayed);
 		
+		JLabel lblOpponent = new JLabel("Opponent");
+		lblOpponent.setBounds(0, 0, 431, 35);
+		midPanel.add(lblOpponent);
+		lblOpponent.setBackground(Color.LIGHT_GRAY);
+		lblOpponent.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		lblYou = new JLabel("You");
+		lblYou.setBounds(430, 0, 406, 35);
+		midPanel.add(lblYou);
+		lblYou.setHorizontalAlignment(SwingConstants.CENTER);
+		lblYou.setBackground(Color.LIGHT_GRAY);
+		
 		bottomPanel = new JPanel();
-		bottomPanel.setBounds(0, 320, 725, 168);
+		bottomPanel.setBounds(0, 373, 835, 184);
 		masterBox.add(bottomPanel);
 		
 		playerHand = new JButton("");
@@ -209,7 +246,6 @@ public class ClientGUI {
 		});
 		playerHand.setEnabled(false);
 		bottomPanel.add(playerHand);
-		
 		frame.setVisible(true);
 		setName(JOptionPane.showInputDialog("Please enter a username"));
 	}
