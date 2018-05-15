@@ -28,9 +28,12 @@ public class ClientConnection extends Thread {
 		try {
 			while (true) {
 				String line = in.readLine();
-				clientGUI.log(line);
+				
 				
 				String[] data = line.split(" ");
+
+				if (!data[0].equals("deal"))
+					clientGUI.log(line);
 				
 				if (data[0].equals("deal")) {
 					data = data[1].split("(?<=\\d)(?=\\D)");
