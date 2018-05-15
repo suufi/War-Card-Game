@@ -99,7 +99,12 @@ public class ClientConnection extends Thread {
 					clientGUI.showDialog("The server has been stopped and you were kicked.");
 					System.exit(0);
 					
+				} else if (data[0].equals("forfeit")) {
+					
+					clientGUI.showDialog("Someone knew they weren't going to win this. They forfeit.");
+					System.exit(0);
 				}
+				
 			}
 		} catch(IOException error) {
 			System.out.println(error);
@@ -167,5 +172,9 @@ public class ClientConnection extends Thread {
 	
 	public void shuffleHand() {
 		hand.shuffle();
+	}
+	
+	public void forfeit() {
+		out.println("forfeit");
 	}
 }

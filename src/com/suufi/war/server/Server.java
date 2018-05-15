@@ -378,4 +378,17 @@ public class Server {
 		turnNext();
 	}
 	
+	public void forfeit() throws IOException {
+		for (PlayerThread player : playerThreads) {
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
+			bw.write("forfeit");
+			bw.newLine();
+			bw.flush();
+			
+			playerThreads.remove(player);
+		}
+		
+		playerCount = 0;
+	}
+	
 }

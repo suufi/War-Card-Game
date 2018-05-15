@@ -108,6 +108,7 @@ public class ClientGUI {
 		btnForfeit.setFont(new Font("SF Compact Text", Font.PLAIN, 13));
 		btnForfeit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				connection.forfeit();
 			}
 		});
 		btnForfeit.setBounds(502, 101, 166, 29);

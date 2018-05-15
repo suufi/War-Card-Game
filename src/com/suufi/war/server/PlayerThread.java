@@ -56,6 +56,10 @@ public class PlayerThread extends Thread {
 					server.playCard(socket, new PlayableCard(parts[1], socket));
 				}
 				
+				if (data.contains("forfeit")) {
+					
+				}
+				
 				// Log it to the server
 				gui.log("Message from " + playerName + ": " + data);
 			}
