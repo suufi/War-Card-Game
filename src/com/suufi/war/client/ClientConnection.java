@@ -99,6 +99,16 @@ public class ClientConnection extends Thread {
 					clientGUI.showDialog("The server has been stopped and you were kicked.");
 					System.exit(0);
 					
+				} else if (data[0].equals("WINNER")) {
+					
+					clientGUI.showDialog("GUESS WHO WON? YOU! CONGRATULATIONS!");
+					System.exit(0);
+					
+				} else if (data[0].equals("LOSER")) {
+					
+					clientGUI.showDialog("Guess who's taking an L home. You sadly.");
+					System.exit(0);
+					
 				} else if (data[0].equals("forfeit")) {
 					
 					clientGUI.showDialog("Someone knew they weren't going to win this. They forfeit.");

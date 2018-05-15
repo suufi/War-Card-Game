@@ -318,11 +318,41 @@ public class Server {
 			
 			if (playerThreads.get(0).getCards().size() == 0) {
 				// TODO tell player that they lost and tell opponent they won
+				BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(playerThreads.get(0).getSocket().getOutputStream()));
+				
+				playerBW.write("LOSER");
+				playerBW.newLine();
+				playerBW.flush();
+				
+				playerBW = new BufferedWriter(new OutputStreamWriter(playerThreads.get(1).getSocket().getOutputStream()));
+				playerBW.write("WINNER");
+				playerBW.newLine();
+				playerBW.flush();
+				
+				playerCount = 0;
+				playerThreads.clear();
+			}
+			
+			if (playerThreads.get(1).getCards().size() == 0) {
+				// TODO tell player that they lost and tell opponent they won
+				BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(playerThreads.get(0).getSocket().getOutputStream()));
+				
+				playerBW.write("WINNER");
+				playerBW.newLine();
+				playerBW.flush();
+				
+				playerBW = new BufferedWriter(new OutputStreamWriter(playerThreads.get(1).getSocket().getOutputStream()));
+				playerBW.write("LOSER");
+				playerBW.newLine();
+				playerBW.flush();
+				
+				playerCount = 0;
+				playerThreads.clear();
 			}
 
 			// TODO Do above in reverse
 			
-			if (playerThreads.get(0).getCards().size() > 0 && playerThreads.get(1).getCards().size() > 0 && war == false) {				
+			if (playerThreads.get(0).getCards().size() > 0 && playerThreads.get(1).getCards().size() > 0) {				
 				newRound();
 			}
 			
@@ -376,6 +406,19 @@ public class Server {
 		}
 		
 		turnNext();
+	}
+	
+	public void endGame() throws IOException {
+		playerCount = 0;
+		
+		for (PlayerThread player : playerThreads) {
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
+			bw.write("serverStop");
+			bw.newLine();
+			bw.flush();
+			
+			playerThreads.remove(player);
+		}
 	}
 	
 	public void forfeit() throws IOException {
