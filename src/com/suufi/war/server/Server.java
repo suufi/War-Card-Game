@@ -157,7 +157,8 @@ public class Server {
 				System.out.println("DECK SIZE: " + deck.size());
 
 				// Divide the cards evenly among the players
-				ArrayList<String> cards = deck.drawCards(52 / playerCount);
+				ArrayList<String> cards = new ArrayList<>();
+				cards.addAll(deck.drawCards(52 / playerCount));
 				
 				System.out.println("PLAYER COUNT: " + playerCount);
 				
@@ -309,11 +310,17 @@ public class Server {
 						playerBW.newLine();
 						playerBW.flush();
 						
-						
 					}
 					
-					warCards.addAll(cardsInPlay);
 					cardsInPlay.clear();
+					
+					try {
+						TimeUnit.SECONDS.sleep(2);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
 			}
 			
 			if (playerThreads.get(0).getCards().size() == 0) {
@@ -360,19 +367,6 @@ public class Server {
 		} else {
 			turnNext();
 		}
-	}
-	
-	public void playWarCard(Socket playerSocket, PlayableCard card, boolean popCard) throws IOException {
-		if (popCard == false) {
-			warCards.add(card);
-		} else {
-			cardsInPlay.add(card);
-			
-			if (cardsInPlay.size() == 2) {
-				
-			}
-		}
-		
 	}
 	
 	public void turnNext() throws IOException {
