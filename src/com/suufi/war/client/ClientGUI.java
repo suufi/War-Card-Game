@@ -289,6 +289,6 @@ public class ClientGUI {
 	
 	public void startWar() {
 		war = true;
-		lblWar.setText("War has been declared! Draw 3 cards face down and turn the next one over.");
+		lblWar.setText("<html>It is war! No one wins. That is truth about War in reality.</html>");
 	}
 }

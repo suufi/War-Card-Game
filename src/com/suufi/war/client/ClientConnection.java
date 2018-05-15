@@ -157,9 +157,13 @@ public class ClientConnection extends Thread {
 			
 			for (String card : cards) {
 				clientGUI.putWarCard("back", Side.RIGHT);
+				out.println("playWar1 " + card);
 			}
 			
 			clientGUI.putWarCard(warCard.get(0), Side.RIGHT);
+			out.println("playWar2 " + warCard.get(0));
+			
+			updateHandSizes();
 		}
 	}
 	
