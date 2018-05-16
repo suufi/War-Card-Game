@@ -117,18 +117,21 @@ public class Server {
 	 * @throws IOException
 	 */
 	public void stop() throws IOException {
+		// if the ServerSocket is still listening, tell it to stop and kick all players out
 		if (listeningSocket == true) {
 			listeningSocket = false;
 			playerCount = 0;
 			
+			// kick all players out
 			for (PlayerThread player : playerThreads) {
 				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
 				bw.write("serverStop");
 				bw.newLine();
 				bw.flush();
-				
-				playerThreads.remove(player);
 			}
+			
+			// clear playerThreads ArrayList
+			playerThreads.clear();
 		} else {
 			gui.log("Can't stop what's not running!");
 		}
@@ -168,6 +171,7 @@ public class Server {
 					bw.write("deal " + card);
 					bw.newLine();
 					
+					// give player card that is dealt
 					player.giveCard(card);
 					
 					try {
@@ -183,6 +187,7 @@ public class Server {
 				bw.newLine();
 				bw.flush();
 				
+				// Start the Timer on all player GUIs
 				bw.write("start");
 				bw.newLine();
 				bw.flush();
@@ -209,17 +214,12 @@ public class Server {
 	}
 	
 	public void playCard(Socket playerSocket, PlayableCard card) throws IOException {
-		/*
-		 * addCard to cards in play
-		 * 
-		 * check cardsinplay size if 2
-		 * 		check if it's better than the first card played
-		 * 			if it is, create a bufferedwriter to player
-		 */
 		
+		// add card to cardsInPlay
 		System.out.println("adding card: " + card.toString());
 		cardsInPlay.add(card);
 		
+		// set bwOpponent to opposite of whoever played the card
 		BufferedWriter bwOpponent; 
 		
 		if (playerSocket.equals(playerThreads.get(0).getSocket())) {
@@ -228,14 +228,15 @@ public class Server {
 			bwOpponent = new BufferedWriter(new OutputStreamWriter(playerThreads.get(0).getSocket().getOutputStream()));
 		}
 		
+		// tell them that opponent played a card
 		bwOpponent.write("oppPlayedCard");
 		bwOpponent.newLine();
 		bwOpponent.flush();
 		
-		boolean war = false;
-		
+		// check if two cards are in play
 		if (cardsInPlay.size() == 2) {
 
+			// tell both players the card that was played by their opponent
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(cardsInPlay.get(0).getPlayerSocket().getOutputStream()));
 			bw.write("oppPlayed " + card.toString());
 			bw.newLine();
@@ -246,6 +247,7 @@ public class Server {
 			bw.newLine();
 			bw.flush();
 			
+			// pause for 2 seconds (add some suspense)
 			try {
 				TimeUnit.SECONDS.sleep(2);
 			} catch (InterruptedException e) {
@@ -253,10 +255,9 @@ public class Server {
 				e.printStackTrace();
 			}
 			
+			// check if the card that was played is stronger, if it was give all cardsInPlay to player that just played card
 			if (card.isStronger(cardsInPlay.get(0))) {
-				
-				war = false;
-				
+								
 				BufferedWriter bw2 = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 				
 				for (PlayableCard cardWon : cardsInPlay) {
@@ -271,9 +272,9 @@ public class Server {
 				
 				bw2.flush();				
 				
+			// does the opposite of above
 			} else if (cardsInPlay.get(0).isStronger(card)) {
 				
-				war = false;
 				
 				BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 				
@@ -297,8 +298,9 @@ public class Server {
 				cardsInPlay.clear();
 				
 				bw2.flush();
+				
+			// it is war at the point
 			} else {
-					war = true;
 					
 					// For each playerSocket connected
 					for (PlayerThread player : playerThreads) {
@@ -306,16 +308,19 @@ public class Server {
 						// Initialize a BufferedWriter to that player
 						BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
 						
+						// tell player it is war and no one wins
 						playerBW.write("war");
 						playerBW.newLine();
 						playerBW.flush();
 						
 					}
 					
+					// clear cardsInPlay because no one gets them
 					cardsInPlay.clear();
 					
+					// pause for 4 seconds
 					try {
-						TimeUnit.SECONDS.sleep(2);
+						TimeUnit.SECONDS.sleep(4);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -323,8 +328,8 @@ public class Server {
 					
 			}
 			
+			// check if player0 ran out of cards, if they did, tell player 1 they won; kicks all players out then
 			if (playerThreads.get(0).getCards().size() == 0) {
-				// TODO tell player that they lost and tell opponent they won
 				BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(playerThreads.get(0).getSocket().getOutputStream()));
 				
 				playerBW.write("LOSER");
@@ -340,8 +345,8 @@ public class Server {
 				playerThreads.clear();
 			}
 			
+			// check if player1 ran out of cards, if they did, tell player 2 they won; kicks all players out then
 			if (playerThreads.get(1).getCards().size() == 0) {
-				// TODO tell player that they lost and tell opponent they won
 				BufferedWriter playerBW = new BufferedWriter(new OutputStreamWriter(playerThreads.get(0).getSocket().getOutputStream()));
 				
 				playerBW.write("WINNER");
@@ -357,20 +362,27 @@ public class Server {
 				playerThreads.clear();
 			}
 
-			// TODO Do above in reverse
-			
+			// if both players still have cards to play, run a another round
 			if (playerThreads.get(0).getCards().size() > 0 && playerThreads.get(1).getCards().size() > 0) {				
 				newRound();
 			}
 			
 			
 		} else {
+			// there has only been 1 card played so run turnNext() for another card from next player
+			
 			turnNext();
 		}
 	}
 	
+	/**
+	 * Tells the next player that it is their turn
+	 * @throws IOException
+	 */
 	public void turnNext() throws IOException {
-		// If the currentPlayerIndex is less than the playerCount - 1, increment the currentPlayerIndex; otherwise, reset it back to 0 so we don't go over
+		// If the currentPlayerIndex is less than the playerCount - 1, 
+		// increment the currentPlayerIndex; otherwise, reset it back to 0 
+		// so we don't go over
 		if (currentPlayerIndex < playerCount - 1) {
 			currentPlayerIndex++;
 		} else {
@@ -385,6 +397,10 @@ public class Server {
 		
 	}
 	
+	/**
+	 * Runs another round by telling each player newRound() and make the next player play
+	 * @throws IOException
+	 */
 	public void newRound() throws IOException {
 		
 		// For each playerSocket connected
@@ -393,28 +409,41 @@ public class Server {
 			// Initialize a BufferedWriter to that player
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
 		
+			// Tell them newRound
 			bw.write("newRound");
 			bw.newLine();
 			bw.flush();
 			
 		}
 		
+		// Pass on the playing player status to next player
 		turnNext();
 	}
 	
+	/**
+	 * Stops the game and kicks all players out.
+	 * @throws IOException
+	 */
 	public void endGame() throws IOException {
 		playerCount = 0;
 		
+		// tell player that server was stopped and kick them
 		for (PlayerThread player : playerThreads) {
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
 			bw.write("serverStop");
 			bw.newLine();
 			bw.flush();
 			
-			playerThreads.remove(player);
 		}
+
+		// clear playerThreads
+		playerThreads.clear();
 	}
 	
+	/**
+	 * Allow player to forfeit. If this method is called, all players are kicked and they are left to figure who chickened out.
+	 * @throws IOException
+	 */
 	public void forfeit() throws IOException {
 		for (PlayerThread player : playerThreads) {
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
@@ -422,9 +451,9 @@ public class Server {
 			bw.newLine();
 			bw.flush();
 			
-			playerThreads.remove(player);
 		}
 		
+		playerThreads.clear();
 		playerCount = 0;
 	}
 	

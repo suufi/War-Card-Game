@@ -50,14 +50,17 @@ public class PlayerThread extends Thread {
 					
 				}
 				
+				// if the ClientConnection sent "play", play the card to the server
 				if (data.contains("play")) {
 					String[] parts = data.split(" ");
 
+					// tell server to playCard
 					server.playCard(socket, new PlayableCard(parts[1], socket));
 				}
 				
+				// if the ClientConnection sent "forfeit", tell the server someone forfeit()-ed
 				if (data.contains("forfeit")) {
-					
+					server.forfeit();
 				}
 				
 				// Log it to the server

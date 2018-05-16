@@ -58,8 +58,14 @@ public class ClientGUI {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
+		// make sure that everything is ready by preprocessing the clientgui
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				
+				// make it cross platform compatible with OS X
+				
 				System.out.println(System.getProperty("os.name"));
 				if (System.getProperty("os.name").startsWith("Mac OS X")) {
 					System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -67,6 +73,7 @@ public class ClientGUI {
 					System.setProperty("com.apple.mrj.application.apple.menu.about.name", "War Client");
 				}
 
+				// create new ClientConnection by getting IP address from a input dialog
 				try {
 					
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -94,22 +101,27 @@ public class ClientGUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		// create new frame, set icon to the war game logo, set the title of the window, set its size and make sure that it closes when you press the big red X button
 		frame = new JFrame();
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(ClientGUI.class.getResource("/com/suufi/war/client/war-client-logo@4x.png")));
 		frame.setTitle("War Client");
 		frame.setBounds(100, 100, 837, 579);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		// create parent container of everything
 		JPanel masterBox = new JPanel();
 		frame.getContentPane().add(masterBox, BorderLayout.CENTER);
 		masterBox.setLayout(null);
 		
+		// create a menu bar containing the About button
 		JMenuBar menubar = new JMenuBar();
 		menubar.setBounds(0, 0, 835, 28);
 		masterBox.add(menubar);
 		JMenu menu = new JMenu("Menu");
-		JMenuItem size = new JMenuItem("Help");
-		size.addActionListener(new ActionListener() {
+		JMenuItem about = new JMenuItem("About");
+		
+		// Display information about the game when about button is pressed
+		about.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				showDialog("War (IRL) - Mohamed Suufi\n\nThe objective of the game is to win all cards.\n" + 
 						"\n" + 
@@ -121,9 +133,12 @@ public class ClientGUI {
 						+ "are discarded from the game.");
 			}
 		});
-		menu.add(size);
+		
+		// add the about button to the menu and add the menu to the menubar
+		menu.add(about);
 		menubar.add(menu);
 		
+		// create topPanel, set its location and size + backgroundColour and add it to masterBox
 		topPanel = new JPanel();
 		topPanel.setLocation(0, 27);
 		topPanel.setBackground(Color.LIGHT_GRAY);
@@ -131,16 +146,20 @@ public class ClientGUI {
 		topPanel.setLayout(null);
 		topPanel.setSize(835, 141);
 		
+		// create the timer label and add it to topPanel
 		lblTimer = new JLabel("Time Elapsed: 0:00");
 		lblTimer.setBounds(509, 12, 166, 15);
 		topPanel.add(lblTimer);
 		
+		// create the client's hand size label and add it to topPanel
 		lblHandSize = new JLabel("Your Hand Size: 0");
 		lblHandSize.setBounds(509, 39, 166, 15);
 		topPanel.add(lblHandSize);
 		
+		// create the forfeit button and add it to topPanel
 		btnForfeit = new JButton("Forfeit");
 		btnForfeit.setFont(new Font("SF Compact Text", Font.PLAIN, 13));
+		// Send forfeit() to ClientConnection when pressed
 		btnForfeit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				connection.forfeit();
@@ -149,37 +168,47 @@ public class ClientGUI {
 		btnForfeit.setBounds(509, 101, 166, 29);
 		topPanel.add(btnForfeit);
 		
+		// create the opponent's hand size label on client's GUI and add it to topPanel
 		lblOppHandSize = new JLabel("Opponent's Hand Size: 0");
 		lblOppHandSize.setBounds(509, 54, 166, 15);
 		topPanel.add(lblOppHandSize);
 		
+		// create the shuffle button and add it to topPanel
 		btnShuffle = new JButton("Shuffle: 3");
 		btnShuffle.setFont(new Font("SF Compact Text", Font.PLAIN, 13));
 		btnShuffle.setBounds(509, 73, 166, 29);
 		btnShuffle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (shufflesRemaining > 0) {					
+				// check if player can still shuffle
+				if (shufflesRemaining > 0) {		
+					// shuffle the player's hand and decrement their shufflesRemaining
 					connection.shuffleHand();
 					shufflesRemaining--;
 					btnShuffle.setText("Shuffle: " + shufflesRemaining);
 					log("Shuffled");
 					
+					// disable the button if they ran out
 					if (shufflesRemaining == 0) {
 						btnShuffle.setEnabled(false);
 						btnShuffle.setText("Shuffle: 0");
 					}
+					
+				// if they do not, tell them they ran out
 				} else {
 					showDialog("Sorry! You ran out of shuffles.");
+					btnShuffle.setEnabled(false);
 				}
 			}
 		});
 		topPanel.add(btnShuffle);
 		
+		// create a scrollPane for the serverMessages to permit scrolling and add to topPanel
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setViewportBorder(null);
 		scrollPane.setBounds(17, 10, 480, 120);
 		topPanel.add(scrollPane);
 		
+		// create serverMessages and customize it
 		serverMessages = new JTextArea();
 		scrollPane.setViewportView(serverMessages);
 		serverMessages.setText("Welcome to War!\n");
@@ -190,74 +219,98 @@ public class ClientGUI {
 		serverMessages.setColumns(30);
 		serverMessages.setBackground(Color.DARK_GRAY);
 		
+		// create the war label that shows when there is war and add it to topPanel
 		lblWar = new JLabel("");
 		lblWar.setHorizontalAlignment(SwingConstants.LEFT);
 		lblWar.setBounds(695, 12, 134, 118);
 		topPanel.add(lblWar);
 		
+		// create midPanel and add it to masterBox
 		midPanel = new JPanel();
 		midPanel.setBounds(0, 170, 835, 201);
 		masterBox.add(midPanel);
 		midPanel.setLayout(null);
 		
+		// the client's played cards panel
 		playerPanel = new JPanel();
 		playerPanel.setBounds(430, 33, 406, 147);
 		midPanel.add(playerPanel);
 		
+		// the client's played card label
 		lblCardPlayed = new JLabel("");
 		playerPanel.add(lblCardPlayed);
 		
+		// the client's opponent's played cards panel
 		opponentPanel = new JPanel();
 		opponentPanel.setBounds(0, 33, 431, 147);
 		midPanel.add(opponentPanel);
 		opponentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
+		// the client's opponent's played card label
 		lblOppCardPlayed = new JLabel("");
 		opponentPanel.add(lblOppCardPlayed);
 		
+		// label telling whose cards are opponent's
 		JLabel lblOpponent = new JLabel("Opponent");
 		lblOpponent.setBounds(0, 0, 431, 35);
 		midPanel.add(lblOpponent);
 		lblOpponent.setBackground(Color.LIGHT_GRAY);
 		lblOpponent.setHorizontalAlignment(SwingConstants.CENTER);
 		
+		// label telling whose cards are clients
 		lblYou = new JLabel("You");
 		lblYou.setBounds(430, 0, 406, 35);
 		midPanel.add(lblYou);
 		lblYou.setHorizontalAlignment(SwingConstants.CENTER);
 		lblYou.setBackground(Color.LIGHT_GRAY);
 		
+		// create bottomPanel and add it to masterBox
 		bottomPanel = new JPanel();
 		bottomPanel.setBounds(0, 373, 835, 184);
 		masterBox.add(bottomPanel);
 		
+		// create the drawCard button that allows client to play card
 		playerHand = new JButton("");
 		playerHand.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/back.png")));
+		// play a card by calling playCard() in ClientConnection and then disabling the button
 		playerHand.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (!war) {					
-					connection.playCard();
-					playerHand.setEnabled(false);
-				} else {
-					connection.playWarCards();
-					playerHand.setEnabled(false);
-				}
+			public void actionPerformed(ActionEvent e) {					
+				connection.playCard();
+				playerHand.setEnabled(false);
 			}
 		});
+		// disable the button on startup and add it to bottomPanel
 		playerHand.setEnabled(false);
 		bottomPanel.add(playerHand);
+		
+		// make the frame visible after everything is ready
 		frame.setVisible(true);
+		
+		// ask client for a username and then send it to the server through ClientConnection
 		setName(JOptionPane.showInputDialog("Please enter a username"));
 	}
 	
+	/**
+	 * logs a message to serverMessages
+	 * @param message - message from the server
+	 */
 	public void log(String message) {
 		serverMessages.append("[SERVER] " + message + "\n");
 	}
 	
+	/**'
+	 * set's the client's username on the server
+	 * @param name - username to set to
+	 */
 	public void setName(String name) {
 		connection.setUsername(name);
 	}
 	
+	/**
+	 * Updates handsize to respective player based off of opponentHand boolean
+	 * @param size - amount of cards held
+	 * @param opponentHand - is size referring to opponent's hand size
+	 */
 	public void updateHandSize(int size, boolean opponentHand) {
 		if (opponentHand == true) {			
 			lblOppHandSize.setText("Opponent's Hand Size: " + size);
@@ -266,14 +319,26 @@ public class ClientGUI {
 		}
 	}
 	
+	/**
+	 * Display a dialog showing text
+	 * @param text - text to show
+	 */
 	public void showDialog(String text) {
 		JOptionPane.showMessageDialog(frame, text);
 	}
 	
+	/**
+	 * Enable the drawCard button
+	 */
 	public void enableTurn() {
 		playerHand.setEnabled(true);
 	}
 	
+	/**
+	 * Places a card on either the Right or Left side of the GUI
+	 * @param card - card to put
+	 * @param side @see Side
+	 */
 	public void putCard(String card, Side side) {
 		if (side == Side.RIGHT) {
 			lblCardPlayed.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/" + card + ".png")));
@@ -282,17 +347,10 @@ public class ClientGUI {
 		}
 	}
 	
-	public void putWarCard(String card, Side side) {
-		JLabel cardLabel = new JLabel("");
-		cardLabel.setIcon(new ImageIcon(ClientGUI.class.getResource("/Cards/" + card + ".png")));
 
-		if (side == Side.RIGHT) {			
-			playerPanel.add(cardLabel);
-		} else {
-			opponentPanel.add(cardLabel);
-		}
-	}
-
+	/**
+	 * Resets the view by resetting the cardPlayed by both players and clearing the war text
+	 */
 	public void resetView() {
 		lblCardPlayed.setIcon(null);
 		lblOppCardPlayed.setIcon(null);
@@ -309,11 +367,19 @@ public class ClientGUI {
 		
 	}
 	
+	/**
+	 * Returns the ClientGUI's ClientConnection
+	 * @return ClientGUI's ClientConnection
+	 */
 	public ClientConnection getClientConnection() {
 		return this.connection;
 	}
 	
+	/**
+	 * Starts the timer
+	 */
 	public void startTimer() {
+		// starts TimeWatch and runs a new thread that keeps updating rapidly the timer text to TimeWatch's tiem
 		watch = TimeWatch.start();
 		Thread thread = new Thread(() -> {
 			while (true) {
@@ -323,8 +389,12 @@ public class ClientGUI {
 		thread.start();
 	}
 	
+	/**
+	 * Display the war message to the client
+	 */
 	public void startWar() {
 		war = true;
 		lblWar.setText("<html>It is war! No one wins. That is truth about War in reality.</html>");
 	}
+	
 }
